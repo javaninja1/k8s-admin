@@ -1,0 +1,19 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eksfar
+  region: us-east-2
+fargateProfiles:
+  - name: fp-default2
+    selectors:
+      # All workloads in the "default" Kubernetes namespace will be
+      # scheduled onto Fargate:
+      - namespace: default
+  - name: fp-demo-env
+    selectors:
+      # All workloads in the "demo-env" Kubernetes namespace matching the following
+      # label selectors will be scheduled onto Fargate:
+      - namespace: demo-env
+        labels:
+          env: demo-env
+          checks: passed

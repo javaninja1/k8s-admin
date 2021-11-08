@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx-demo
+    env: demo-namespace
+  name: nginx-demo
+  namespace: demo-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-demo
+      env: demo-namespace
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: nginx-demo
+        env: demo-namespace
+    spec:
+      containers:
+      - image: nginx:latest
+        imagePullPolicy: Always
+        name: nginx-root
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+          requests:
+            cpu: 750m
+            memory: 1536Mi
+        volumeMounts:
+        - mountPath: /etc/nginx
+          name: nginx-conf
+          readOnly: true
+        - mountPath: /var/log/nginx
+          name: log
+        - mountPath: /mnt/data
+          name: persistent-storage
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+      - configMap:
+          defaultMode: 420
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+          name: nginx-conf
+        name: nginx-conf
+      - name: persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-claim
+      - emptyDir: {}
+        name: log
+

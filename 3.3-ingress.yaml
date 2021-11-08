@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: "demo-ingress"
+  namespace: "default"
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/group.name: demo-eks
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-2:<<ACCOUNT_ID>>:certificate/<<CERT_ID>>
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/success-codes: 200,302
+    alb.ingress.kubernetes.io/healthcheck-path: /demo/health
+  labels:
+    app: demo-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      paths:
+      - path: /demo
+        backend:
+          serviceName: "demo-service"
+          servicePort: 80
+      - path: /demo/*
+        backend:
+          serviceName: "demo-service"
+          servicePort: 80
